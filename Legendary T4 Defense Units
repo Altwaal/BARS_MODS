@@ -1,0 +1,215 @@
+--Legendary Ragnarok, Calamity & Starfall T4
+-- Authors: Altwaal
+local a,b,c,d,e=UnitDefs or{},table.merge,'legendary_ragnarok','legendary_calamity','legendary_starfall'
+
+a.legendary_ragnarok=b(a['armvulc'],{
+    name='Legendary Ragnarok',
+    description='The apex of Armada artillery engineering. Unleashes devastating plasma barrages that shake the very foundations of the battlefield.',
+    buildtime=450000,
+    health=248000,
+    metalcost=495000,
+    energycost=4250000,
+    icontype="armvulc",
+    customparams={
+        i18n_en_humanname='Legendary Ragnarok',
+        i18n_en_tooltip='Devastating rapid-fire plasma artillery. Annihilates everything in range.',
+        techlevel=4
+    },
+    weapondefs={
+        apocalypse_plasma_cannon={
+            collidefriendly=0,
+            collidefeature=0,
+            avoidfeature=0,
+            avoidfriendly=0,
+            impactonly=1,
+            name='Apocalypse Plasma Cannon',
+            weapontype='LaserCannon',
+            rgbcolor='1.0 0.2 0.1',
+            burst=4,
+            burstrate=0.35,
+            reloadtime=1.5,
+            accuracy=000,
+            areaofeffect=180,
+            range=5200,
+            energypershot=22000,
+            turret=true,
+            soundstart='lrpcshot3',
+            soundhit='rflrpcexplo',
+            soundhitvolume=40,
+            size=8,
+            impulsefactor=1.3,
+            weaponvelocity=3500,
+            thickness=12,
+            laserflaresize=10,
+            texture3="largebeam",
+            tilelength=150,
+            tolerance=10000,
+            beamtime=2.5,
+            explosiongenerator='custom:genericshellexplosion-huge',
+            craterboost=0.15,
+            cratermult=0.15,
+            edgeeffectiveness=0.25,
+            damage={
+                default=8800,
+                shields=1400,
+                subs=700
+            },
+            allowNonBlockingAim=true
+        }
+    },
+    weapons={
+        [1]={
+            badtargetcategory='MOBILE',
+            def='apocalypse_plasma_cannon',
+            onlytargetcategory='SURFACE'
+        }
+    }
+})
+
+a[d]=b(a['corbuzz'],{
+    name='Legendary Calamity',
+    description='The pinnacle of Cortex siege technology. Fires massive plasma shells that obliterate entire formations with each earth-shattering impact.',
+    buildtime=460000,
+    health=252000,
+    metalcost=505000,
+    energycost=4350000,
+    icontype="corbuzz",
+    customparams={
+        i18n_en_humanname='Legendary Calamity',
+        i18n_en_tooltip='Massive single-shot plasma artillery. Each shell causes catastrophic destruction.',
+        techlevel=4
+    },
+    weapondefs={
+        cataclysm_plasma_howitzer={
+            collidefriendly=0,
+            collidefeature=0,
+            avoidfeature=0,
+            avoidfriendly=0,
+            impactonly=1,
+            name='Cataclysm Plasma Howitzer',
+            weapontype='LaserCannon',
+            rgbcolor='0.2 1.0 0.9',
+            burst=1,
+            burstrate=0,
+            reloadtime=4.2,
+            accuracy=000,
+            areaofeffect=240,
+            range=5400,
+            energypershot=38000,
+            turret=true,
+            soundstart='lrpcshot3',
+            soundhit='rflrpcexplo',
+            soundhitvolume=50,
+            size=12,
+            impulsefactor=2.0,
+            weaponvelocity=3200,
+            thickness=18,
+            laserflaresize=14,
+            texture3="largebeam",
+            tilelength=200,
+            tolerance=10000,
+            beamtime=3.0,
+            explosiongenerator='custom:genericshellexplosion-huge',
+            craterboost=0.25,
+            cratermult=0.25,
+            edgeeffectiveness=0.35,
+            damage={
+                default=22000,
+                shields=3500,
+                subs=1500
+            },
+            allowNonBlockingAim=true
+        }
+    },
+    weapons={
+        [1]={
+            badtargetcategory='MOBILE',
+            def='cataclysm_plasma_howitzer',
+            onlytargetcategory='SURFACE'
+        }
+    }
+})
+
+a[e]=b(a['legstarfall'],{
+    name='Legendary Starfall',
+    description='The pinnacle of Legion siege technology. Unleashes a devastating meteor shower that obliterates entire formations.',
+    buildtime=460000,
+    health=52000,
+    metalcost=000001,
+    energycost=0040000,
+    icontype="legstarfall",
+    customparams={
+        i18n_en_humanname='Legendary Starfall',
+        i18n_en_tooltip='Devastating meteor barrage. Rains destruction from the heavens.',
+        techlevel=4
+    },
+    weapondefs={
+        legendary_starfire={
+            accuracy=0,
+            areaofeffect=320,
+            avoidfeature=false,
+            avoidfriendly=false,
+            avoidground=false,
+            burst=91,
+            burstrate=0.008,
+            sprayangle=250,
+            highTrajectory=0,
+            cegtag='starfire',
+            collidefriendly=false,
+            craterboost=0.15,
+            impactonly=1,
+            cratermult=0.15,
+            weaponvelocity=3500,
+            edgeeffectiveness=0.95,
+            energypershot=000001,
+            fireTolerance=364,
+            tolerance=364,
+            explosiongenerator='custom:starfire-explosion',
+            gravityaffected='true',
+            impulsefactor=0.6,
+            name='Legendary Starfire Barrage',
+            noselfdamage=true,
+            range=6500,
+            reloadtime=10,
+            rgbcolor='0.6 0.4 1.0',
+            soundhit='rflrpcexplo',
+            soundhitwet='splshbig',
+            soundstart='lrpcshot',
+            soundhitvolume=42,
+            turret=true,
+            weapontimer=16,
+            weapontype='Cannon',
+            weaponvelocity=950,
+            damage={
+                default=1850,
+                shields=340,
+                sub=75
+            }
+        }
+    },
+    weapons={
+        [1]={
+            badtargetcategory='MOBILE',
+            def='legendary_starfire',
+            onlytargetcategory='SURFACE',
+            burstControlWhenOutOfArc=1,
+            maindir='0 0 1'
+        }
+    }
+})
+
+local f={'armaca','armack','armacsub','armacv','coraca','corack','coracsub','coracv','legaca','legack','legacv','legcomt2com'}
+
+for g,h in pairs{'arm','cor','leg'}do 
+    for i=3,10 do 
+        table.insert(f,h..'comlvl'..i)
+    end
+    table.insert(f,h..'t3airaide')
+end
+
+for g,j in pairs(f)do 
+    if a[j]then 
+        local h=string.sub(j,1,3)
+        table.insert(a[j].buildoptions,h=='arm'and c or h=='cor'and d or e)
+    end 
+end
