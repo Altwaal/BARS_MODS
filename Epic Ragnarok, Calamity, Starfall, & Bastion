@@ -1,5 +1,6 @@
+
 --Epic Ragnarok, Calamity, Starfall, & Bastion
--- Authors: Altwaal
+--Authors: Altwaal
 
 local a,b,c,d,e,f=UnitDefs or{},table.merge,'epic_ragnarok','epic_calamity','epic_starfall','epic_bastion'
 
