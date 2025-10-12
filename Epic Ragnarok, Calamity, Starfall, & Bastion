@@ -1,0 +1,308 @@
+--Epic Ragnarok, Calamity & Starfall T4
+-- Authors: Altwaal
+
+local a,b,c,d,e,f=UnitDefs or{},table.merge,'epic_ragnarok','epic_calamity','epic_starfall','epic_bastion'
+
+a.epic_ragnarok=b(a['armvulc'],{
+  name='Epic Ragnarok',
+  description='Advanced Armada artillery engineering. Unleashes powerful plasma barrages across the battlefield.',
+  buildtime=900000,
+  health=140000,
+  metalcost=180000,
+  energycost=2600000,
+  icontype="armvulc",
+  customparams={
+    i18n_en_humanname='Epic Ragnarok',
+    i18n_en_tooltip='Powerful rapid-fire plasma artillery. Destroys everything in range.',
+    techlevel=4
+  },
+  weapondefs={
+    apocalypse_plasma_cannon={
+      collidefriendly=0,
+      collidefeature=0,
+      avoidfeature=0,
+      avoidfriendly=0,
+      impactonly=1,
+      name='Apocalypse Plasma Cannon',
+      weapontype='Cannon',
+      rgbcolor='1.0 0.2 0.1',
+      burst=1,
+      burstrate=0.1,
+      camerashake=0,
+      reloadtime=0.4,
+      accuracy=500,
+      areaofeffect=160,
+      range=3200,
+      energypershot=14000,
+      turret=true,
+      soundstart='lrpcshot3',
+      soundhit='rflrpcexplo',
+      soundhitvolume=40,
+      size=8,
+      impulsefactor=1.3,
+      weaponvelocity=2500,
+      footprintx=14,
+      footprintz=14,
+      turnrate=20000,
+      thickness=12,
+      laserflaresize=6,
+      texture3="largebeam",
+      tilelength=150,
+      tolerance=10000,
+      beamtime=2.5,
+      explosiongenerator='custom:tachyonshot',
+      craterboost=0.15,
+      cratermult=0.15,
+      edgeeffectiveness=0.25,
+      damage={
+        default=4860,
+        shields=990,
+        subs=495
+      },
+      allowNonBlockingAim=true
+    }
+  },
+  weapons={
+    [1]={
+      badtargetcategory='MOBILE',
+      def='apocalypse_plasma_cannon',
+      onlytargetcategory='SURFACE'
+    }
+  }
+})
+
+a[d]=b(a['corbuzz'],{
+  name='Epic Calamity',
+  description='Advanced Cortex siege technology. Fires large plasma shells that devastate formations with each impact.',
+  buildtime=920000,
+  health=145000,
+  metalcost=165000,
+  energycost=2700000,
+  icontype="corbuzz",
+  customparams={
+    i18n_en_humanname='Epic Calamity',
+    i18n_en_tooltip='Large single-shot plasma artillery. Each shell causes major destruction.',
+    techlevel=4
+  },
+  weapondefs={
+    cataclysm_plasma_howitzer={
+      collidefriendly=0,
+      collidefeature=0,
+      avoidfeature=0,
+      avoidfriendly=0,
+      impactonly=1,
+      name='Cataclysm Plasma Howitzer',
+      weapontype='Cannon',
+      rgbcolor='0.15 0.6 0.5',
+      burst=1,
+      burstrate=0.1,
+      camerashake=0,
+      reloadtime=0.25,
+      accuracy=500,
+      areaofeffect=220,
+      range=3200,
+      energypershot=11000,
+      turret=true,
+      soundstart='lrpcshot3',
+      soundhit='rflrpcexplo',
+      soundhitvolume=50,
+      size=12,
+      impulsefactor=2.0,
+      weaponvelocity=2500,
+      footprintx=14,
+      footprintz=14,
+      turnrate=20000,
+      thickness=18,
+      laserflaresize=8,
+      texture3="largebeam",
+      tilelength=200,
+      tolerance=10000,
+      beamtime=3.0,
+      explosiongenerator='custom:tachyonshot',
+      craterboost=0.25,
+      cratermult=0.25,
+      edgeeffectiveness=0.35,
+      damage={
+        default=4680,
+        shields=2520,
+        subs=1080
+      },
+      allowNonBlockingAim=true
+    }
+  },
+  weapons={
+    [1]={
+      badtargetcategory='MOBILE',
+      def='cataclysm_plasma_howitzer',
+      onlytargetcategory='SURFACE'
+    }
+  }
+})
+
+a[e]=b(a['legstarfall'],{
+  name='Epic Starfall',
+  description='Advanced Legion siege technology. Unleashes a powerful meteor shower that devastates formations.',
+  buildtime=920000,
+  health=90000,
+  metalcost=160000,
+  energycost=2040000,
+  icontype="legstarfall",
+  customparams={
+    i18n_en_humanname='Epic Starfall',
+    i18n_en_tooltip='Powerful meteor barrage. Rains destruction from above.',
+    techlevel=4
+  },
+  weapondefs={
+    legendary_starfire={
+      accuracy=0,
+      areaofeffect=300,
+      avoidfeature=false,
+      avoidfriendly=false,
+      avoidground=false,
+      burst=75,
+      burstrate=0.009,
+      sprayangle=250,
+      highTrajectory=0,
+      cegtag='starfire',
+      collidefriendly=false,
+      craterboost=0.15,
+      impactonly=1,
+      cratermult=0.15,
+      weaponvelocity=2500,
+      turnrate=20000,
+      footprintx=14,
+      footprintz=14,
+      edgeeffectiveness=0.95,
+      energypershot=120000,
+      fireTolerance=364,
+      tolerance=364,
+      explosiongenerator='custom:tachyonshot',
+      gravityaffected='true',
+      impulsefactor=0.6,
+      name='Epic Starfire Barrage',
+      noselfdamage=true,
+      range=3200,
+      reloadtime=12,
+      camerashake=0,
+      rgbcolor='0.6 0.4 1.0',
+      soundhit='rflrpcexplo',
+      soundhitwet='splshbig',
+      soundstart='lrpcshot',
+      soundhitvolume=42,
+      turret=true,
+      weapontimer=16,
+      weapontype='Cannon',
+      weaponvelocity=700,
+      damage={
+        default=1980,
+        shields=243,
+        sub=54
+      }
+    }
+  },
+  weapons={
+    [1]={
+      badtargetcategory='MOBILE',
+      def='legendary_starfire',
+      onlytargetcategory='SURFACE',
+      burstControlWhenOutOfArc=1,
+      maindir='0 0 1'
+    }
+  }
+})
+
+a[f]=b(a['legbastion'],{
+  name='Epic Bastion',
+  description='Advanced Legion defensive flamethrower tower. Unleashes devastating long-range flames that incinerate swarms.',
+  buildtime=400000,
+  health=20000,
+  metalcost=22000,
+  energycost=92000,
+  icontype="legbastion",
+  customparams={
+    i18n_en_humanname='Epic Bastion',
+    i18n_en_tooltip='Heavy long-range anti-swarm flamethrower tower.',
+    techlevel=3
+  },
+  weapondefs={
+    dmaw={
+      areaofeffect=80,
+      avoidfeature=false,
+      burst=20,
+      burstrate=0.04,
+      cegtag='burnflame-anim',
+      colormap='1 0.95 0.82 0.03   0.65 0.4 0.35 0.030   0.44 0.25 0.20 0.028   0.033 0.018 0.012 0.03   0.0 0.0 0.0 0.01',
+      craterareaofeffect=0,
+      craterboost=0,
+      cratermult=0,
+      edgeeffectiveness=0.2,
+      energypershot=114,
+      explosiongenerator='custom:burnblack',
+      firestarter=100,
+      flamegfxtime=1.2,
+      impactonly=1,
+      impulsefactor=0,
+      intensity=0.75,
+      name='Epic Anti-swarm Flamethrower',
+      noselfdamage=true,
+      proximitypriority=1,
+      range=960,
+      reloadtime=0.475,
+      rgbcolor='1 0.94 0.88',
+      rgbcolor2='0.9 0.84 0.8',
+      sizegrowth=0.85,
+      soundhitdry='flamhit1',
+      soundhitvolume=8.5,
+      soundhitwet='sizzle',
+      soundstart='Flamhvy1',
+      soundstartvolume=6.0,
+      soundtrigger=false,
+      sprayangle=140,
+      targetmoveerror=0.001,
+      texture1='flame',
+      tolerance=2500,
+      turret=true,
+      weapontimer=1.2,
+      weapontype='Flame',
+      weaponvelocity=640,
+      customparams={
+        exclude_preaim=true
+      },
+      damage={
+        commanders=72,
+        default=50,
+        subs=12
+      }
+    }
+  },
+  weapons={
+    [1]={
+      def='dmaw',
+      fastautoretargeting=true,
+      onlytargetcategory='SURFACE'
+    }
+  }
+})
+
+local g={'armaca','armack','armacsub','armacv','coraca','corack','coracsub','coracv','legaca','legack','legacv','legcomt2com'}
+
+for h,i in pairs{'arm','cor','leg'}do 
+  for j=3,10 do 
+    table.insert(g,i..'comlvl'..j)
+  end
+  table.insert(g,i..'t3airaide')
+end
+
+for h,k in pairs(g)do 
+  if a[k]then 
+    local i=string.sub(k,1,3)
+    if i=='arm'then 
+      table.insert(a[k].buildoptions,c)
+    elseif i=='cor'then 
+      table.insert(a[k].buildoptions,d)
+    elseif i=='leg'then 
+      table.insert(a[k].buildoptions,e)
+      table.insert(a[k].buildoptions,f)
+    end 
+  end 
+end
