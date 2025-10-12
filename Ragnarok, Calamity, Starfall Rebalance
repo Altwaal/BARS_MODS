@@ -1,0 +1,50 @@
+armvulc = {
+  health = 63000,
+  weapondefs = {
+    ARMVULC_MAIN = {
+      damage = {
+        commanders = 480,
+        default = 3000
+      },
+      areaofeffect = 60,
+      energypershot = 15000,
+      range = 2400,
+      reloadtime = 0.7,
+      turnrate = 20000
+    }
+  }
+},
+
+corbuzz = {
+  health = 73000,
+  weapondefs = {
+    COBUZZ_MAIN = {
+      damage = {
+        commanders = 480,
+        default = 6000
+      },
+      areaofeffect = 230,
+      edgeeffectiveness = 0.6,
+      energypershot = 18000,
+      range = 6100,
+      reloadtime = 0.5
+    }
+  }
+},
+
+legstarfall = {
+  health = 53000,
+  weapondefs = {
+    LEGSTARFALL_MAIN = {
+      damage = {
+        commanders = 480,
+        default = 7500
+      },
+      energypershot = 270000,
+      range = 61000,
+      reloadtime = 18,
+      turnrate = 30000
+    }
+  }
+}
+
