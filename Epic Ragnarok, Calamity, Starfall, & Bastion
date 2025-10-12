@@ -56,7 +56,7 @@ a.epic_ragnarok=b(a['armvulc'],{
       cratermult=0.15,
       edgeeffectiveness=0.25,
       damage={
-        default=4860,
+        default=6360,
         shields=990,
         subs=495
       },
@@ -182,7 +182,7 @@ a[e]=b(a['legstarfall'],{
       impulsefactor=0.6,
       name='Epic Starfire Barrage',
       noselfdamage=true,
-      range=3200,
+      range=4200,
       reloadtime=12,
       camerashake=0,
       rgbcolor='0.6 0.4 1.0',
@@ -195,7 +195,7 @@ a[e]=b(a['legstarfall'],{
       weapontype='Cannon',
       weaponvelocity=700,
       damage={
-        default=1980,
+        default=2280,
         shields=243,
         sub=54
       }
