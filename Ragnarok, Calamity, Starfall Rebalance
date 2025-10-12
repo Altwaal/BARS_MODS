@@ -9,6 +9,7 @@ armvulc = {
       areaofeffect = 60,
       energypershot = 15000,
       range = 2400,
+      impactonly=1,
       reloadtime = 0.7,
       turnrate = 20000
     }
@@ -26,6 +27,7 @@ corbuzz = {
       areaofeffect = 230,
       edgeeffectiveness = 0.6,
       energypershot = 18000,
+      impactonly=1,
       range = 6100,
       reloadtime = 0.5
     }
@@ -43,6 +45,7 @@ legstarfall = {
       energypershot = 270000,
       range = 61000,
       reloadtime = 18,
+      impactonly=1,
       turnrate = 30000
     }
   }
