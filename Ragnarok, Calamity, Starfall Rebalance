@@ -35,7 +35,7 @@ armvulc={
       name='The Eagle Standard',
       noselfdamage=true,
       range=2900,
-      reloadtime=0.75,
+      reloadtime=0.3,
       rgbcolor='0/1/0.4',
       scrollspeed=13,
       soundhitdry='',
@@ -53,7 +53,7 @@ armvulc={
       weaponvelocity=3100,
       damage={
         commanders=480,
-        default=1750
+        default=2550
       }
     }
   },
