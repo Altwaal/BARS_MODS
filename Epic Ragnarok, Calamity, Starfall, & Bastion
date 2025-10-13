@@ -240,6 +240,7 @@ a[f]=b(a['legbastion'],{
       proximitypriority=1,
       range=1200,
       reloadtime=1.1,
+      energypershot=500,
       impactonly=1,
       rgbcolor='1 0.94 0.88',
       rgbcolor2='0.9 0.84 0.8',
