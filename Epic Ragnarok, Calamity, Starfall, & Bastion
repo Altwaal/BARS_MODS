@@ -214,7 +214,7 @@ a[f]=b(a['legbastion'],{
   name='Epic Bastion',
   description='Advanced Legion defensive flamethrower tower. Unleashes devastating long-range flames that incinerate swarms.',
   buildtime=150000,
-  health=30000,
+  health=16000,
   metalcost=22000,
   energycost=92000,
   icontype="legbastion",
@@ -266,7 +266,7 @@ a[f]=b(a['legbastion'],{
         exclude_preaim=true
       },
       damage={
-        commanders=1815,
+        commanders=925,
         default=610,
         subs=300
       }
