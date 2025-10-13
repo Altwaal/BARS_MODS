@@ -225,7 +225,7 @@ a[f]=b(a['legbastion'],{
   },
   weapondefs={
     dmaw={
-      areaofeffect=64,
+      areaofeffect=164,
       avoidfeature=false,
       burst=16,
       burstrate=0.05,
@@ -254,7 +254,7 @@ a[f]=b(a['legbastion'],{
       soundstart='Flamhvy1',
       soundstartvolume=5.3,
       soundtrigger=false,
-      sprayangle=100,
+      sprayangle=300,
       targetmoveerror=0.001,
       texture1='flame',
       tolerance=2500,
@@ -267,7 +267,7 @@ a[f]=b(a['legbastion'],{
       },
       damage={
         commanders=1815,
-        default=1210,
+        default=610,
         subs=300
       }
     }
