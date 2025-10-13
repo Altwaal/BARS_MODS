@@ -55,7 +55,7 @@ a.epic_ragnarok=b(a['armvulc'],{
       cratermult=0.15,
       edgeeffectiveness=0.25,
       damage={
-        default=4800,
+        default=4630,
         shields=990,
         subs=495
       },
@@ -98,7 +98,7 @@ a[d]=b(a['corbuzz'],{
       reloadtime=0.3,
       accuracy=300,
       areaofeffect=220,
-      range=3200,
+      range=3150,
       energypershot=4000,
       turret=true,
       soundstart='lrpcshot3',
@@ -120,7 +120,7 @@ a[d]=b(a['corbuzz'],{
       cratermult=0.25,
       edgeeffectiveness=0.35,
       damage={
-        default=2733,
+        default=4133,
         shields=2520,
         subs=1080
       },
