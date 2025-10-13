@@ -263,7 +263,7 @@ a[f]=b(a['legbastion'],{
       },
       damage={
         commanders=925,
-        default=610,
+        default=310,
         subs=300
       }
     }
