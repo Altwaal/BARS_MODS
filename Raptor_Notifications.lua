@@ -259,9 +259,17 @@ local function getMarqueeMessage(raptorEventArgs)
 			end
 		end
 	elseif raptorEventArgs.type == "miniBossSpawn" then
-		messages[1] = "\255\255\100\1ELITE RAPTOR DETECTED!"
-		messages[2] = textColor .. raptorEventArgs.bossName
-		messages[3] = "\255\255\50\1" .. raptorEventArgs.bossDescription
+		-- Check if it's a queenling for special VIP message
+		local bossName = raptorEventArgs.bossName
+		if string.find(bossName, "Queenling") then
+			messages[1] = "\255\255\100\1VIP GUESTS HAVE ARRIVED!"
+			messages[2] = textColor .. raptorEventArgs.bossName
+			messages[3] = "\255\255\50\1" .. raptorEventArgs.bossDescription
+		else
+			messages[1] = "\255\255\100\1ELITE RAPTOR DETECTED!"
+			messages[2] = textColor .. raptorEventArgs.bossName
+			messages[3] = "\255\255\50\1" .. raptorEventArgs.bossDescription
+		end
 	end
 
 	refreshMarqueeMessage = false
