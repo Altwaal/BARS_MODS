@@ -10,9 +10,23 @@ function widget:GetInfo()
 		desc = "Shows warnings for grace period and boss spawns with big scrolling text",
 		author = "Altwaal",
 		date = "October 15, 2025",
+		version = "1.0",
 		license = "GNU GPL, v2 or later",
 		layer = -8,
-		enabled = true
+		enabled = true,
+		changelog = {
+			["1.0"] = {
+				"Initial release",
+				"Grace period warnings at 12, 11, 6, 5, 3, and 1 minute(s)",
+				"TIME TO COOK notification when grace period ends",
+				"Elite raptor spawn detection (Queenlings, Matronas, Consort, Doombringer)",
+				"VIP GUESTS HAVE ARRIVED message for Queenling spawns",
+				"50+ randomized funny cooking-themed messages",
+				"Dual notification system: big scrolling text + chat messages",
+				"Chat messages contain practical tactical advice",
+				"Sound effects for all warnings",
+			}
+		}
 	}
 end
 
