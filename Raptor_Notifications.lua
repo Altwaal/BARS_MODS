@@ -276,13 +276,31 @@ local function getMarqueeMessage(raptorEventArgs)
 		-- Check if it's a queenling for special VIP message
 		local bossName = raptorEventArgs.bossName
 		if string.find(bossName, "Queenling") then
-			messages[1] = "\255\255\100\1VIP GUESTS HAVE ARRIVED!"
-			messages[2] = textColor .. raptorEventArgs.bossName
-			messages[3] = "\255\255\50\1" .. raptorEventArgs.bossDescription
+			-- Random VIP variants
+			local vipMessages = {
+				{"\255\255\100\1VIP GUESTS HAVE ARRIVED!", textColor .. raptorEventArgs.bossName, "\255\255\50\1" .. raptorEventArgs.bossDescription},
+				{"\255\255\100\1BORDER ALERT!", textColor .. raptorEventArgs.bossName .. " has crossed the border!", "\255\255\50\1Secure your perimeter!"},
+				{"\255\255\100\1ILLEGAL ALIEN DETECTED!", textColor .. "Unauthorized entry: " .. raptorEventArgs.bossName, "\255\255\50\1No passport, no problem... for them!"},
+				{"\255\255\100\1IMMIGRATION VIOLATION!", textColor .. raptorEventArgs.bossName .. " bypassed customs!", "\255\255\50\1Build that wall!"},
+				{"\255\255\100\1RAPTOR ROYALTY INCOMING!", textColor .. raptorEventArgs.bossName .. " doesn't need a visa", "\255\255\50\1" .. raptorEventArgs.bossDescription},
+			}
+			local variant = vipMessages[math.random(1, #vipMessages)]
+			messages[1] = variant[1]
+			messages[2] = variant[2]
+			messages[3] = variant[3]
 		else
-			messages[1] = "\255\255\100\1ELITE RAPTOR DETECTED!"
-			messages[2] = textColor .. raptorEventArgs.bossName
-			messages[3] = "\255\255\50\1" .. raptorEventArgs.bossDescription
+			-- Random elite raptor variants
+			local eliteMessages = {
+				{"\255\255\100\1ELITE RAPTOR DETECTED!", textColor .. raptorEventArgs.bossName, "\255\255\50\1" .. raptorEventArgs.bossDescription},
+				{"\255\255\100\1SPECIAL DELIVERY!", textColor .. raptorEventArgs.bossName .. " has arrived", "\255\255\50\1Return to sender not available!"},
+				{"\255\255\100\1BORDER BREACH!", textColor .. raptorEventArgs.bossName .. " has entered illegally!", "\255\255\50\1Where's border patrol?"},
+				{"\255\255\100\1UNAUTHORIZED ENTRY!", textColor .. "Illegal immigrant: " .. raptorEventArgs.bossName, "\255\255\50\1No documentation required!"},
+				{"\255\255\100\1THE BOSS HAS ARRIVED!", textColor .. raptorEventArgs.bossName, "\255\255\50\1" .. raptorEventArgs.bossDescription},
+			}
+			local variant = eliteMessages[math.random(1, #eliteMessages)]
+			messages[1] = variant[1]
+			messages[2] = variant[2]
+			messages[3] = variant[3]
 		end
 	end
 
@@ -364,11 +382,11 @@ local function checkGracePeriodWarnings()
 				-- Also send notification to chat with proper advice
 				local chatAdvice = ""
 				if threshold == 180 then
-					chatAdvice = "Build walls now!"
+					chatAdvice = "Start preparing defenses and build walls!"
 				elseif threshold == 60 then
 					chatAdvice = "Build defenses: AA, Dragon's Maw, shields!"
 				elseif threshold == 300 then
-					chatAdvice = "Start preparing defenses!"
+					chatAdvice = "Get ready - plan your defense strategy!"
 				elseif threshold == 360 then
 					chatAdvice = "Time to plan your defense!"
 				end
