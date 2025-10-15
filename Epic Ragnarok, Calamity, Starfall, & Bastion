@@ -54,7 +54,7 @@ a.epic_ragnarok=b(a['armvulc'],{
       noselfdamage=true,
       soundtrigger=1,
       damage={
-        default=5167,
+        default=7567,
         shields=891,
         subs=446
       },
