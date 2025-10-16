@@ -1,0 +1,175 @@
+--Mini Bosses v2f Extended
+-- Authors: RCore, Extended
+-- docs.google.com/spreadsheets/d/1QSVsuAAMhBrhiZdTihVfSCwPzbbZWDLCtXWP23CU0ko
+local a,b,c,d,e,f=UnitDefs or{},table.merge,table.copy,'raptor_matriarch_basic','customfusionexplo',Spring;local g,h=1.3,1.3;h=a[d].health/60000;g=a['raptor_queen_epic'].health/1250000;local i=1;if f.Utilities.Gametype.IsRaptors()then i=(#f.GetTeamList()-2)/12 end;local j=f.GetModOptions().raptor_spawncountmult or 3;local i=i*(j/3)local function j(a)return math.max(1,math.ceil(a*i))end;local i={70,85,90,105,110,125}local k=math.max(1,f.GetModOptions().raptor_queentimemult or 1.3)local l,m=i[1],i[#i]local n=k*i[#i]/1.3;local m=(n-l)/(m-l)for a=2,#i do i[a]=math.floor(l+(i[a]-l)*m)end;local f=f.GetModOptions().raptor_queen_count or 1;local l=1;l=math.min(10,g/1.3*0.9)local g=20;local m=10*(1.06^math.max(0,math.min(f,g)-8))local g=math.max(0,f-g)local g=m+g;local g=math.ceil(l*g)local g=k*100+g;local f=math.max(3,j(math.floor((21*f+36)/19)))local function k(c,d,e)if a[c]and not a[d]then a[d]=b(a[c],e or{})end end;local d=a[d].health;k('raptor_queen_veryeasy','raptor_miniq_a',{name='Queenling Prima',icontype='raptor_queen_veryeasy',health=d*5,customparams={i18n_en_humanname='Queenling Prima',i18n_en_tooltip='Majestic and bold, ruler of the hunt.'}})k('raptor_queen_easy','raptor_miniq_b',{name='Queenling Secunda',icontype='raptor_queen_easy',health=d*6,customparams={i18n_en_humanname='Queenling Secunda',i18n_en_tooltip='Swift and sharp, a noble among raptors.'}})k('raptor_queen_normal','raptor_miniq_c',{name='Queenling Tertia',icontype='raptor_queen_normal',health=d*7,customparams={i18n_en_humanname='Queenling Tertia',i18n_en_tooltip='Refined tastes. Likes her prey rare.'}})a.raptor_miniq_b.weapondefs.acidgoo=c(a['raptor_matriarch_acid'].weapondefs.acidgoo)a.raptor_miniq_c.weapondefs.empgoo=c(a['raptor_matriarch_electric'].weapondefs.goo)for a,a in ipairs{{'raptor_matriarch_basic','raptor_mama_ba','Matrona','Claws charged with vengeance.'},{'raptor_matriarch_fire','raptor_mama_fi','Pyro Matrona','A firestorm of maternal wrath.'},{'raptor_matriarch_electric','raptor_mama_el','Paralyzing Matrona','Crackling with rage, ready to strike.'},{'raptor_matriarch_acid','raptor_mama_ac','Acid Matrona','Acid-fueled, melting everything in sight.'}}do k(a[1],a[2],{name=a[3],icontype=a[1],health=d*1.5,customparams={i18n_en_humanname=a[3],i18n_en_tooltip=a[4]}})end;k('critter_penguinking','raptor_consort',{name='Raptor Consort',icontype='corkorg',health=d*4,mass=100000,nochasecategory="MOBILE VTOL OBJECT",sonarstealth=false,stealth=false,speed=67.5,customparams={i18n_en_humanname='Raptor Consort',i18n_en_tooltip='Sneaky powerful little terror.'}})a.raptor_consort.weapondefs.goo=c(a['raptor_queen_epic'].weapondefs.goo)k('raptor_consort','raptor_doombringer',{name='Doombringer',icontype='armafust3',health=d*12,speed=50,customparams={i18n_en_humanname='Doombringer',i18n_en_tooltip='Your time is up. The Queens called for backup.'}})
+
+-- NEW MINI BOSS UNITS (Balanced to Queen level, spawn with Queenlings)
+-- Mini ARM Commander Boss
+if a['armcomboss'] then
+    k('armcomboss','raptor_mini_armcom',{
+        name='Mini ARM Destroyer',
+        icontype='scavengers/ARMCOMBOSS',
+        health=d*5.5,
+        speed=20.0,
+        mass=150000,
+        autoheal=100,
+        idleautoheal=100,
+        builder=false,
+        builddistance=0,
+        workertime=0,
+        cancapture=false,
+        canresurrect=false,
+        canreclaim=false,
+        canrepair=false,
+        canassist=false,
+        customparams={
+            i18n_en_humanname='Mini ARM Destroyer',
+            i18n_en_tooltip='Scaled down but still deadly ARM commander variant.'
+        },
+        weapondefs={
+            armcomlaserboss={damage={default=150,vtol=600,shields=600},reloadtime=0.15},
+            armcomsealaserboss={damage={default=150,vtol=600,shields=600},reloadtime=0.15},
+            disintegratorxl={reloadtime=10}
+        }
+    })
+end
+
+-- Mini COR Commander Boss
+if a['corcomboss'] then
+    k('corcomboss','raptor_mini_corcom',{
+        name='Mini COR Ravager',
+        icontype='scavengers/CORCOMBOSS',
+        health=d*5,
+        speed=20.0,
+        mass=150000,
+        autoheal=80,
+        builder=false,
+        builddistance=0,
+        workertime=0,
+        cancapture=false,
+        canresurrect=false,
+        canreclaim=false,
+        canrepair=false,
+        canassist=false,
+        customparams={
+            i18n_en_humanname='Mini COR Ravager',
+            i18n_en_tooltip='Compact COR commander with devastating firepower.'
+        },
+        weapondefs={
+            corcomlaserboss={damage={default=120,shields=500},reloadtime=0.15},
+            corcomsealaserboss={damage={default=120,shields=500},reloadtime=0.15},
+            disintegratorxl={reloadtime=15,range=750}
+        }
+    })
+end
+
+-- Mini Scavenger Boss V2 (Normal difficulty version)
+if a['armscavengerbossv2_normal'] then
+    k('armscavengerbossv2_normal','raptor_mini_scavv2',{
+        name='Mini Scav Guardian',
+        icontype='LEGCOM',
+        health=d*6,
+        speed=35.0,
+        autoheal=5,
+        idleautoheal=3,
+        builder=false,
+        builddistance=0,
+        workertime=0,
+        cancapture=false,
+        canresurrect=false,
+        canreclaim=false,
+        canrepair=false,
+        canassist=false,
+        customparams={
+            i18n_en_humanname='Mini Scav Guardian',
+            i18n_en_tooltip='A guardian spawned from scavenger essence.'
+        },
+        weapondefs={
+            machinegun={damage={default=50,vtol=150,shields=200},reloadtime=0.15},
+            torpedo={damage={default=800,subs=400,shields=2000},reloadtime=1.2},
+            disintegratorxl={
+                burst=1,
+                burstrate=0,
+                reloadtime=12,
+                stockpiletime=60
+            },
+            corkorg_laser={damage={default=1500,shields=4000},reloadtime=1.5}
+        }
+    })
+end
+
+-- Mini Scavenger Boss V4 (Normal difficulty version)
+if a['scavengerbossv4_normal'] then
+    k('scavengerbossv4_normal','raptor_mini_scavv4',{
+        name='Mini Scav Juggernaut',
+        icontype='LEGCOM',
+        health=d*6.5,
+        speed=32.0,
+        autoheal=6,
+        idleautoheal=3,
+        damageModifier=0.7,
+        builder=false,
+        builddistance=0,
+        workertime=0,
+        cancapture=false,
+        canresurrect=false,
+        canreclaim=false,
+        canrepair=false,
+        canassist=false,
+        customparams={
+            i18n_en_humanname='Mini Scav Juggernaut',
+            i18n_en_tooltip='Advanced scavenger war machine, downsized.'
+        },
+        weapondefs={
+            machinegun={damage={default=80,vtol=40,shields=320},reloadtime=0.5},
+            torpedo={damage={default=500,shields=1600},reloadtime=1.0},
+            shotgunarm={
+                damage={default=200,subs=50,shields=800},
+                projectiles=8,
+                reloadtime=15
+            },
+            shoulderturrets={
+                damage={default=600,shields=1800,subs=150},
+                burst=2,
+                reloadtime=4
+            },
+            missilelauncher={
+                damage={default=200,vtol=1200,subs=300,shields=800},
+                burst=2,
+                reloadtime=5
+            },
+            eaterbeam={damage={default=15000,commanders=1500,shields=40000},reloadtime=0.45},
+            special_disintegratorxl={
+                burst=1,
+                projectiles=1,
+                reloadtime=15
+            }
+        },
+        weapons={
+            [1]={def="machinegun",onlytargetcategory="NOTSUB"},
+            [2]={def="TORPEDO",onlytargetcategory="NOTAIR"},
+            [3]={def="shotgunarm",onlytargetcategory="NOTSUB"},
+            [4]={def="shoulderturrets",onlytargetcategory="NOTSUB"},
+            [5]={def="missilelauncher",onlytargetcategory="NOTSUB"},
+            [6]={def="eaterbeam"},
+            [7]={def="special_disintegratorxl"}
+        }
+    })
+end
+
+local function c(a,b,c,d,e,f)return{raptorcustomsquad=true,raptorsquadunitsamount=e or 1,raptorsquadminanger=a,raptorsquadmaxanger=b,raptorsquadweight=f or 5,raptorsquadrarity=d or'basic',raptorsquadbehavior=c,raptorsquadbehaviordistance=500,raptorsquadbehaviorchance=0.75}end;local d={selfdestructas=e,explodeas=e,weapondefs={yellow_missile={damage={default=1,vtol=1000}}}}for b,c in pairs{raptor_miniq_a=b(d,{maxthisunit=j(2),customparams=c(i[1],i[2],'berserk'),weapondefs={goo={damage={default=750}},melee={damage={default=4000}}}}),raptor_miniq_b=b(d,{maxthisunit=j(3),customparams=c(i[3],i[4],'berserk'),weapondefs={acidgoo={burst=8,reloadtime=10,sprayangle=4096,damage={default=1500,shields=1500}},melee={damage={default=5000}}},weapons={[1]={def="MELEE",maindir="0 0 1",maxangledif=155},[2]={onlytargetcategory="VTOL",def="yellow_missile"},[3]={onlytargetcategory="VTOL",def="yellow_missile"},[4]={onlytargetcategory="VTOL",def="yellow_missile"},[5]={def="acidgoo",maindir="0 0 1",maxangledif=180}}}),raptor_miniq_c=b(d,{maxthisunit=j(4),customparams=c(i[5],i[6],'berserk'),weapondefs={empgoo={burst=10,reloadtime=10,sprayangle=4096,damage={default=2000,shields=2000}},melee={damage={default=6000}}},weapons={[1]={def="MELEE",maindir="0 0 1",maxangledif=155},[2]={onlytargetcategory="VTOL",def="yellow_missile"},[3]={onlytargetcategory="VTOL",def="yellow_missile"},[4]={onlytargetcategory="VTOL",def="yellow_missile"},[5]={def="empgoo",maindir="0 0 1",maxangledif=180}}}),raptor_consort={explodeas='raptor_empdeath_big',maxthisunit=j(6),customparams=c(i[2],1000,'berserk'),weapondefs={eyelaser={name='Angry Eyes',reloadtime=3,rgbcolor='1 0 0.3',range=500,damage={default=6000,commanders=6000}},goo={name='Snowball Barrage',soundstart='penbray2',soundStartVolume=2,cegtag="blob_trail_blue",burst=8,sprayangle=2048,weaponvelocity=600,reloadtime=4,range=1000,hightrajectory=1,rgbcolor="0.7 0.85 1.0",damage={default=1000}}},weapons={[1]={def="eyelaser",badtargetcategory="VTOL OBJECT"},[2]={def='goo',maindir='0 0 1',maxangledif=180,badtargetcategory="VTOL OBJECT"}}},raptor_doombringer={explodeas="ScavComBossExplo",maxthisunit=f,customparams=c(g,1000,'berserk',nil,1,99),weapondefs={eyelaser={name='Eyes of Doom',reloadtime=3,rgbcolor='0.3 1 0',range=500,damage={default=48000,commanders=24000}},goo={name='Amber Hailstorm',soundstart='penbray1',soundStartVolume=2,cegtag="blob_trail_red",burst=15,sprayangle=3072,weaponvelocity=600,reloadtime=5,rgbcolor="0.7 0.85 1.0",hightrajectory=1,damage={default=5000}}},weapons={[1]={def="eyelaser",badtargetcategory="VTOL OBJECT"},[2]={def='goo',maindir='0 0 1',maxangledif=180,badtargetcategory="VTOL OBJECT"}}},raptor_mama_ba={maxthisunit=j(4),customparams=c(55,i[3]-1,'berserk'),weapondefs={goo={damage={default=750}},melee={damage={default=750}}}},raptor_mama_fi={explodeas='raptor_empdeath_big',maxthisunit=j(4),customparams=c(55,i[3]-1,'berserk'),weapondefs={flamethrowerspike={damage={default=80}},flamethrowermain={damage={default=160}}}},raptor_mama_el={maxthisunit=j(4),customparams=c(65,1000,'berserk')},raptor_mama_ac={maxthisunit=j(4),customparams=c(60,1000,'berserk'),weapondefs={melee={damage={default=750}}}},
+-- NEW MINI BOSSES SPAWN CONFIG (Normal spawn times with Queenlings)
+raptor_mini_armcom={maxthisunit=j(2),customparams=c(i[1],i[2],'berserk'),selfdestructas=e,explodeas=e},
+raptor_mini_corcom={maxthisunit=j(2),customparams=c(i[1],i[2],'berserk'),selfdestructas=e,explodeas=e},
+raptor_mini_scavv2={maxthisunit=j(3),customparams=c(i[3],i[4],'berserk'),selfdestructas=e,explodeas=e},
+raptor_mini_scavv4={maxthisunit=j(4),customparams=c(i[5],i[6],'berserk'),selfdestructas=e,explodeas=e},
+raptor_land_assault_basic_t4_v2={maxthisunit=j(8),customparams=c(33,50,'raider')},raptor_land_assault_basic_t4_v1={maxthisunit=j(12),customparams=c(51,64,'raider','basic',2)}}do a[b]=a[b]or{}table.mergeInPlace(a[b],c,true)end;
+
+-- UPDATED METAL COSTS
+local a={raptor_mama_ba=36000,raptor_mama_fi=36000,raptor_mama_el=36000,raptor_mama_ac=36000,raptor_consort=45000,raptor_doombringer=90000,
+-- New mini bosses metal costs (balanced with Queenlings)
+raptor_mini_armcom=40000,
+raptor_mini_corcom=38000,
+raptor_mini_scavv2=42000,
+raptor_mini_scavv4=45000
+}local b=UnitDef_Post;function UnitDef_Post(c,d)if b then b(c,d)end;local b=1;if h>1.3 then b=h/1.3 end;for a,c in pairs(a)do if UnitDefs[a]then local b=math.floor(c*b)UnitDefs[a].metalcost=b end end end
