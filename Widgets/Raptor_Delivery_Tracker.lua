@@ -6,7 +6,7 @@ local widget = widget ---@type Widget
 
 function widget:GetInfo()
 	return {
-		name = "Raptor Delivery Tracker",
+		name = "Raptor Uber Eats Tracker",
 		desc = "You're on the menu! Get notifications when raptors order delivery to your base",
 		author = "Altwaal",
 		date = "October 15, 2025",
