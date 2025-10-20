@@ -348,9 +348,9 @@ local function checkGracePeriodWarnings()
 				-- Also send notification to chat with proper advice
 				local chatAdvice = ""
 				if threshold == 180 then
-					chatAdvice = "Start preparing defenses and build walls!"
+					chatAdvice = "TIER 2 WALLS UP! Tier 1 walls are raptor desserts!"
 				elseif threshold == 60 then
-					chatAdvice = "Build defenses: AA, Dragon's Maw, shields!"
+					chatAdvice = "Build AA, Dragon's Maw (Cortex), and shields NOW!"
 				elseif threshold == 300 then
 					chatAdvice = "Get ready - plan your defense strategy!"
 				elseif threshold == 360 then
