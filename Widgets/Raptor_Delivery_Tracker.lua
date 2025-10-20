@@ -6,11 +6,11 @@ local widget = widget ---@type Widget
 
 function widget:GetInfo()
 	return {
-		name = "Raptor Uber Eats Tracker",
+		name = "Raptor_Delivery_Tracker",
 		desc = "You're on the menu! Get notifications when raptors order delivery to your base",
 		author = "Altwaal",
 		date = "October 15, 2025",
-		version = "2.1",
+		version = "2.3",
 		license = "GNU GPL, v2 or later",
 		layer = 5,
 		enabled = true
@@ -59,9 +59,15 @@ local miniBossNotifications = {
 
 -- Track queen anger notifications
 local queenAngerNotifications = {
+	[53] = false,  -- Matronas pre-warning (2% before)
 	[55] = false,  -- Matronas incoming
+	[68] = false,  -- Queenling Prima pre-warning (2% before)
 	[70] = false,  -- Queenling Prima incoming
+	[88] = false,  -- Queenling Secunda pre-warning (2% before)
 	[90] = false,  -- Queenling Secunda incoming
+	[108] = false, -- Queenling Tertia pre-warning (2% before)
+	[110] = false, -- Queenling Tertia incoming
+	[98] = false,  -- Queen pre-warning (2% before)
 	[100] = false, -- Queen spawning soon
 }
 
@@ -393,7 +399,7 @@ local function checkGracePeriodWarnings()
 		
 		-- Send notification to chat
 		Spring.Echo("\255\255\50\1RAPTORS INCOMING! \255\255\255\1Grace period has ended!")
-		return
+		-- Don't return here! Let other notifications continue
 	end
 	
 	-- Only check during grace period
@@ -537,6 +543,7 @@ local function UpdateRules()
 
 	gameInfo.raptorGracePeriod = Spring.GetGameRulesParam("raptorGracePeriod") or 0
 	gameInfo.raptorQueenAnger = Spring.GetGameRulesParam("raptorQueenAnger") or 0
+	gameInfo.raptorTechAnger = Spring.GetGameRulesParam("raptorTechAnger") or 0
 end
 
 local function checkQueenAngerWarnings()
@@ -544,7 +551,8 @@ local function checkQueenAngerWarnings()
 		return
 	end
 	
-	local currentAnger = gameInfo.raptorQueenAnger
+	-- Use TechAnger instead of QueenAnger for boss spawns!
+	local currentAnger = gameInfo.raptorTechAnger
 	
 	-- Check each anger threshold
 	for threshold, alreadyWarned in pairs(queenAngerNotifications) do
@@ -552,34 +560,95 @@ local function checkQueenAngerWarnings()
 			queenAngerNotifications[threshold] = true
 			
 			local warningArgs
-			if threshold == 55 then
+			if threshold == 53 then
+				local preWarnings = {
+					{title = "RESTAURANT RESERVATION CONFIRMED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Matronas around the corner!"},
+					{title = "DELIVERY DRIVERS EN ROUTE!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Elite Matriarchs taking last turn!"},
+					{title = "YOUR FOOD IS BEING PREPARED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Kitchen staff almost here!"},
+					{title = "UBER DRIVER 2 MINUTES AWAY!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Better tip well!"},
+				}
+				local variant = preWarnings[math.random(1, #preWarnings)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
+			elseif threshold == 55 then
 				warningArgs = {
 					type = "queenAnger",
 					title = "MATRONAS INCOMING!",
-					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
+					message = "Evolution: " .. math.floor(currentAnger) .. "%",
 					subtitle = "Elite Matriarch raptors are spawning!"
 				}
+			elseif threshold == 68 then
+				local preWarnings = {
+					{title = "VIP GUESTS ON THE WAY!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Queenling Prima around the corner!"},
+					{title = "RED CARPET BEING ROLLED OUT!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "First royal guest at your street!"},
+					{title = "PRIVATE JET LANDING SOON!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Elite passenger descending!"},
+					{title = "LIMO SERVICE DISPATCHED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Premium delivery pulling up!"},
+					{title = "GPS SAYS YOU'RE NEXT STOP!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Driver making last turn!"},
+				}
+				local variant = preWarnings[math.random(1, #preWarnings)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
 			elseif threshold == 70 then
-				warningArgs = {
-					type = "queenAnger",
-					title = "QUEENLING PRIMA ALERT!",
-					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
-					subtitle = "First royal raptor is coming!"
+				local spawnMessages = {
+					{title = "QUEENLING PRIMA ALERT!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "First royal raptor is coming!"},
+					{title = "VIP HAS ARRIVED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Prima is checking in!"},
+					{title = "INFLUENCER JUST LANDED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "10 million followers incoming!"},
 				}
+				local variant = spawnMessages[math.random(1, #spawnMessages)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
+			elseif threshold == 88 then
+				local preWarnings = {
+					{title = "SECOND VIP GUEST ON THE WAY!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Queenling Secunda almost here!"},
+					{title = "ANOTHER RESERVATION CONFIRMED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Table ready, guest at door!"},
+					{title = "PRIORITY SHIPPING ACTIVE!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Express delivery on your street!"},
+					{title = "CELEBRITY #2 EN ROUTE!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Paparazzi swarming your base!"},
+					{title = "SECOND UBER ARRIVING!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Driver is circling the block!"},
+				}
+				local variant = preWarnings[math.random(1, #preWarnings)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
 			elseif threshold == 90 then
-				warningArgs = {
-					type = "queenAnger",
-					title = "QUEENLING SECUNDA ALERT!",
-					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
-					subtitle = "Second royal raptor is coming!"
+				local spawnMessages = {
+					{title = "QUEENLING SECUNDA ALERT!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Second royal raptor is coming!"},
+					{title = "DOUBLE VIP BOOKING!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Secunda has entered the chat!"},
+					{title = "PREMIUM MEMBERSHIP ACTIVATED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Elite customer #2!"},
 				}
+				local variant = spawnMessages[math.random(1, #spawnMessages)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
+			elseif threshold == 108 then
+				local preWarnings = {
+					{title = "FINAL VIP ON THE WAY!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Queenling Tertia turning the corner!"},
+					{title = "TRIPLE THREAT INCOMING!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Last royal at your doorstep!"},
+					{title = "EXCLUSIVE RESERVATION!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Tertia pulling into driveway!"},
+					{title = "LUXURY PACKAGE DELIVERED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Premium service knocking!"},
+					{title = "FINAL DELIVERY INCOMING!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Can you hear the footsteps?"},
+				}
+				local variant = preWarnings[math.random(1, #preWarnings)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
+			elseif threshold == 110 then
+				local spawnMessages = {
+					{title = "QUEENLING TERTIA ALERT!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "Third royal raptor is coming!"},
+					{title = "TRIPLE VIP COMPLETE!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "All royalty has arrived!"},
+					{title = "FINAL BOSS UNLOCKED!", message = "Evolution: " .. math.floor(currentAnger) .. "%", subtitle = "DLC complete!"},
+				}
+				local variant = spawnMessages[math.random(1, #spawnMessages)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
+			elseif threshold == 98 then
+				local preWarnings = {
+					{title = "THE QUEEN IS WAKING UP!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Final boss almost awake!"},
+					{title = "BOSS FIGHT LOADING...", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Health bar appearing!"},
+					{title = "FINAL WARNING!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "The Queen is stirring!"},
+					{title = "SHE'S COMING!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Ground is shaking!"},
+					{title = "EARTHQUAKE DETECTED!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Something big approaches!"},
+				}
+				local variant = preWarnings[math.random(1, #preWarnings)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
 			elseif threshold == 100 then
-				warningArgs = {
-					type = "queenAnger",
-					title = "QUEEN IS SPAWNING!",
-					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
-					subtitle = "The final boss approaches!"
+				local spawnMessages = {
+					{title = "QUEEN IS SPAWNING!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "The final boss approaches!"},
+					{title = "FINAL BOSS HAS ARRIVED!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Good luck!"},
+					{title = "THE QUEEN AWAKENS!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "This is it!"},
+					{title = "ENDGAME ACTIVATED!", message = "Queen Anger: " .. math.floor(gameInfo.raptorQueenAnger) .. "%", subtitle = "Show her what you've got!"},
 				}
+				local variant = spawnMessages[math.random(1, #spawnMessages)]
+				warningArgs = {type = "queenAnger", title = variant.title, message = variant.message, subtitle = variant.subtitle}
 			end
 			
 			if warningArgs then
@@ -589,10 +658,10 @@ local function checkQueenAngerWarnings()
 				waveTime = Spring.GetTimer()
 				
 				-- Play warning sound
-				Spring.PlaySoundFile(sounds.miniBoss, 0.8, 'ui')
+				Spring.PlaySoundFile(sounds.queenAnger, 0.8, 'ui')
 				
 				-- Send notification to chat
-				Spring.Echo("\255\255\200\50\1" .. warningArgs.title .. " \255\255\255\1(" .. math.floor(currentAnger) .. "% anger)")
+				Spring.Echo("\255\255\200\50\1" .. warningArgs.title)
 			end
 		end
 	end
