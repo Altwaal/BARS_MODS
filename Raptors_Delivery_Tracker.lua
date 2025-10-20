@@ -6,27 +6,14 @@ local widget = widget ---@type Widget
 
 function widget:GetInfo()
 	return {
-		name = "Raptor Notifications",
-		desc = "Shows warnings for grace period and boss spawns with big scrolling text",
+		name = "Raptor Delivery Tracker",
+		desc = "You're on the menu! Get notifications when raptors order delivery to your base",
 		author = "Altwaal",
 		date = "October 15, 2025",
-		version = "1.0",
+		version = "2.1",
 		license = "GNU GPL, v2 or later",
-		layer = -8,
-		enabled = true,
-		changelog = {
-			["1.0"] = {
-				"Initial release",
-				"Grace period warnings at 12, 11, 6, 5, 3, and 1 minute(s)",
-				"TIME TO COOK notification when grace period ends",
-				"Elite raptor spawn detection (Queenlings, Matronas, Consort, Doombringer)",
-				"VIP GUESTS HAVE ARRIVED message for Queenling spawns",
-				"50+ randomized funny cooking-themed messages",
-				"Dual notification system: big scrolling text + chat messages",
-				"Chat messages contain practical tactical advice",
-				"Sound effects for all warnings",
-			}
-		}
+		layer = 5,
+		enabled = true
 	}
 end
 
@@ -53,10 +40,11 @@ local gracePeriodWarnings = {
 	[300] = false,  -- 5 minutes
 	[180] = false,  -- 3 minutes
 	[60] = false,   -- 1 minute
+	[30] = false,   -- 30 seconds
 	[0] = false,    -- Grace period ends
 }
 
--- Track mini boss spawns
+-- Track mini boss spawns to avoid duplicate notifications
 local miniBossNotifications = {
 	raptor_miniq_a = false,
 	raptor_miniq_b = false,
@@ -69,10 +57,19 @@ local miniBossNotifications = {
 	raptor_doombringer = false,
 }
 
+-- Track queen anger notifications
+local queenAngerNotifications = {
+	[55] = false,  -- Matronas incoming
+	[70] = false,  -- Queenling Prima incoming
+	[90] = false,  -- Queenling Secunda incoming
+	[100] = false, -- Queen spawning soon
+}
+
 -- Sound files
 local sounds = {
-	gracePeriod = "sounds/reply/warning-critical.wav",
-	miniBoss = "sounds/reply/alert-response.wav",
+	gracePeriod = "sounds/ui/mappoint2.wav",
+	miniBoss = "sounds/ui/mappoint2.wav",
+	queenAnger = "sounds/ui/mappoint2.wav",
 }
 
 local vsx, vsy = Spring.GetViewGeometry()
@@ -85,6 +82,37 @@ local enabled = false
 local nBosses = Spring.GetModOptions().raptor_queen_count or 1
 
 local textColor = "\255\255\255\255"
+
+local gameInfo = {}
+
+local function WaveRow(n)
+	return n * (waveFontSize + waveSpacingY)
+end
+
+-- Mini boss data
+local miniBossNames = {
+	raptor_miniq_a = "Queenling Prima",
+	raptor_miniq_b = "Queenling Secunda",
+	raptor_miniq_c = "Queenling Tertia",
+	raptor_mama_ba = "Matrona",
+	raptor_mama_fi = "Pyro Matrona",
+	raptor_mama_el = "Paralyzing Matrona",
+	raptor_mama_ac = "Acid Matrona",
+	raptor_consort = "Raptor Consort",
+	raptor_doombringer = "Doombringer",
+}
+
+local miniBossDescriptions = {
+	raptor_miniq_a = "Majestic and bold, ruler of the hunt.",
+	raptor_miniq_b = "Swift and sharp, a noble among raptors.",
+	raptor_miniq_c = "Refined tastes. Likes her prey rare.",
+	raptor_mama_ba = "Claws charged with vengeance.",
+	raptor_mama_fi = "A firestorm of maternal wrath.",
+	raptor_mama_el = "Crackling with rage, ready to strike.",
+	raptor_mama_ac = "Acid-fueled, melting everything in sight.",
+	raptor_consort = "Sneaky powerful little terror.",
+	raptor_doombringer = "Your time is up. The Queens called for backup.",
+}
 
 -- Random message variants for different notifications
 local messageVariants = {
@@ -148,7 +176,81 @@ local messageVariants = {
 			"\255\255\50\1ALL YOU CAN EAT!",
 			"\255\255\100\50\1Raptor buffet is open",
 			"\255\255\200\100\1Your base is the menu!"
-		}
+		},
+		{
+			"\255\255\50\1DELIVERY HAS ARRIVED!",
+			"\255\255\100\50\1Raptors are at your doorstep",
+			"\255\255\200\100\1You forgot to tip!"
+		},
+		{
+			"\255\255\50\1LIVE STREAM STARTING!",
+			"\255\255\100\50\1Raptors going live in 3...2...1...",
+			"\255\255\200\100\1You're the main character!"
+		},
+		{
+			"\255\255\50\1NOTIFICATION SPAM INCOMING!",
+			"\255\255\100\50\11000 raptors are now following you",
+			"\255\255\200\100\1Block button disabled!"
+		},
+		{
+			"\255\255\50\1YOUR UBER HAS ARRIVED!",
+			"\255\255\100\50\1Driver: Raptor Army",
+			"\255\255\200\100\1Rating: 5 stars of death!"
+		},
+	},
+	twelveMinutes = {
+		"Raptors just tagged you on Facebook!",
+		"You've been added to the raptor hunting party group chat!",
+		"Raptors are dropping pins on your location!",
+		"Your base just got 5 stars on Raptor Yelp!",
+		"Raptors swiped right on your base!",
+		"New notification: 1000 raptors interested in your location!",
+		"Raptors shared your post in 47 groups!",
+		"Your base is trending on Raptor Reddit!",
+		"Raptors just bookmarked your coordinates!",
+		"You got a Super Like from the Raptor Queen!",
+	},
+	elevenMinutes = {
+		"Raptors are calling an Uber... to YOUR base!",
+		"Your address just went viral on raptor TikTok!",
+		"Raptors added your base to Google Maps favorites!",
+		"New friend request from: Raptor Army (1000 mutual friends)",
+		"Raptors are livestreaming the attack prep!",
+		"You're trending #1 on Raptor Twitter!",
+		"Raptors enabled push notifications for your base!",
+		"Your WiFi signal detected by raptor GPS!",
+		"Raptors just subscribed to your channel... of doom!",
+		"Breaking: You're viral on Raptor Instagram!",
+	},
+	sixMinutes = {
+		"Raptors are getting hungry...",
+		"They're writing the menu. Guess who's on it?",
+		"Raptor chefs are preheating the ovens!",
+		"Kitchen staff meeting in progress!",
+		"Raptors putting on their chef hats!",
+		"Someone just ordered 'Commander Flambé'!",
+		"Raptors checking their recipe books...",
+		"The appetizer arrives in 6 minutes. You're the main course!",
+		"Are you ready to COOK or BE COOKED?",
+		"Raptors are sharpening their claws and knives!",
+		"Better start cooking... before YOU'RE the meal!",
+		"Raptors just ordered takeout. Guess what's on the menu?",
+		"Your WiFi password has been leaked to raptors!",
+		"New calendar invite: Raptor Dinner Party at your base",
+		"Raptors just RSVPed 'Yes' to destroying you!",
+	},
+	fiveMinutes = {
+		"Time to get serious!",
+		"Raptors are doing stretches!",
+		"They smell weakness... or is that you?",
+		"Cook or be cooked - your choice!",
+		"Raptors voted: Your base looks tasty!",
+		"5 minutes to show what you're made of!",
+		"Are you the chef or the ingredient?",
+		"Dinner bells are about to ring!",
+		"Raptors just ordered express delivery to your coordinates!",
+		"You're pinned on the raptor meal delivery app!",
+		"Order confirmed: 1 base, extra crispy!",
 	},
 	threeMinutes = {
 		"Consider building walls!",
@@ -164,50 +266,10 @@ local messageVariants = {
 		"Who will be on the menu first?",
 		"Raptors are reading the menu... it's YOU!",
 		"Chef Raptor: '3 minutes until dinner service!'",
-		"Reservation for 1000 confirmed. Table: Your base!"
-	},
-	sixMinutes = {
-		"Raptors are getting hungry...",
-		"They're writing the menu. Guess who's on it?",
-		"Raptor chefs are preheating the ovens!",
-		"Kitchen staff meeting in progress!",
-		"Raptors putting on their chef hats!",
-		"Someone just ordered 'Commander Flambé'!",
-		"Raptors checking their recipe books...",
-		"The appetizer arrives in 6 minutes. You're the main course!",
-		"Are you ready to COOK or BE COOKED?",
-		"Raptors are sharpening their claws and knives!",
-		"Better start cooking... before YOU'RE the meal!"
-	},
-	fiveMinutes = {
-		"Time to get serious!",
-		"Raptors are doing stretches!",
-		"They smell weakness... or is that you?",
-		"Cook or be cooked - your choice!",
-		"Raptors voted: Your base looks tasty!",
-		"5 minutes to show what you're made of!",
-		"Are you the chef or the ingredient?",
-		"Dinner bells are about to ring!"
-	},
-	twelveMinutes = {
-		"Raptors woke up hungry today!",
-		"Morning coffee for raptors = YOUR METAL!",
-		"They're planning the attack... and the menu!",
-		"Raptor breakfast shift just started!",
-		"Someone call Gordon Ramsay Raptor!",
-		"Will you cook them or will they cook you?",
-		"Early bird gets the worm. Early raptor gets YOU!",
-		"Raptors are meal prepping... guess the meal?"
-	},
-	elevenMinutes = {
-		"Raptors just checked the forecast: Cloudy with a chance of YOU!",
-		"They're making a grocery list. You're on it!",
-		"Raptor Uber Eats delivery time: 11 minutes!",
-		"Better hurry - they're getting impatient!",
-		"Cook or be cooked? Clock's ticking!",
-		"Raptors are leaving their cave. Hungry!",
-		"Someone left a bad Yelp review... time for revenge!",
-		"Your coordinates have been shared in raptor group chat!"
+		"Reservation for 1000 confirmed. Table: Your base!",
+		"Raptors are 3 minutes away according to Google Maps!",
+		"ETA: 3 minutes. Raptors never late!",
+		"Driver is approaching. Can't cancel now!",
 	},
 	oneMinute = {
 		"Build defenses, shields, anti-air, Dragon's Maw!",
@@ -218,39 +280,22 @@ local messageVariants = {
 		"They can smell your metal from here! DEFENSES NOW!",
 		"Raptors are setting the table! PANIC BUILD!",
 		"Chef Raptor says you're almost ready! SHIELDS UP!",
-		"They're bringing the hot sauce! BUILD EVERYTHING!"
-	}
-}
-
-local gameInfo = {}
-
-local function WaveRow(n)
-	return n * (waveFontSize + waveSpacingY)
-end
-
--- Mini boss data
-local miniBossNames = {
-	raptor_miniq_a = "Queenling Prima",
-	raptor_miniq_b = "Queenling Secunda",
-	raptor_miniq_c = "Queenling Tertia",
-	raptor_mama_ba = "Matrona",
-	raptor_mama_fi = "Pyro Matrona",
-	raptor_mama_el = "Paralyzing Matrona",
-	raptor_mama_ac = "Acid Matrona",
-	raptor_consort = "Raptor Consort",
-	raptor_doombringer = "Doombringer",
-}
-
-local miniBossDescriptions = {
-	raptor_miniq_a = "Majestic and bold, ruler of the hunt.",
-	raptor_miniq_b = "Swift and sharp, a noble among raptors.",
-	raptor_miniq_c = "Refined tastes. Likes her prey rare.",
-	raptor_mama_ba = "Claws charged with vengeance.",
-	raptor_mama_fi = "A firestorm of maternal wrath.",
-	raptor_mama_el = "Crackling with rage, ready to strike.",
-	raptor_mama_ac = "Acid-fueled, melting everything in sight.",
-	raptor_consort = "Sneaky powerful little terror.",
-	raptor_doombringer = "Your time is up. The Queens called for backup.",
+		"They're bringing the hot sauce! BUILD EVERYTHING!",
+		"60 SECONDS! Raptors are at your street!",
+		"Your notification bell just exploded!",
+		"Raptors are knocking. You can't decline this call!",
+		"Delivery driver texted: 'I'm here' - It's 1000 raptors!",
+	},
+	thirtySeconds = {
+		"30 SECONDS! They're in your driveway!",
+		"DOORBELL RANG! It's not Amazon...",
+		"Raptors bypassed your firewall!",
+		"Connection established. Raptors.exe loading...",
+		"Final boss music started playing!",
+		"You have 1 new voicemail: ROAAAAR!",
+		"Raptors just entered your ZIP code!",
+		"System alert: Raptors detected at front door!",
+	},
 }
 
 local function getMarqueeMessage(raptorEventArgs)
@@ -266,11 +311,18 @@ local function getMarqueeMessage(raptorEventArgs)
 			messages[3] = randomVariant[3]
 		else
 			messages[1] = "\255\255\200\1WARNING!"
-			messages[2] = textColor .. raptorEventArgs.timeRemaining .. " remaining"
-			messages[3] = textColor .. "in Grace Period"
+			messages[2] = textColor .. raptorEventArgs.timeRemaining
+			messages[3] = textColor .. "Remaining"
 			if raptorEventArgs.suggestion then
 				messages[4] = "\255\255\150\200\1" .. raptorEventArgs.suggestion
 			end
+		end
+	elseif raptorEventArgs.type == "queenAnger" then
+		-- Queen anger threshold warnings
+		messages[1] = "\255\255\200\50\1" .. raptorEventArgs.title
+		messages[2] = "\255\255\255\100\1" .. raptorEventArgs.message
+		if raptorEventArgs.subtitle then
+			messages[3] = "\255\255\150\100\1" .. raptorEventArgs.subtitle
 		end
 	elseif raptorEventArgs.type == "miniBossSpawn" then
 		-- Check if it's a queenling for special VIP message
@@ -283,6 +335,9 @@ local function getMarqueeMessage(raptorEventArgs)
 				{"\255\255\100\1ILLEGAL ALIEN DETECTED!", textColor .. "Unauthorized entry: " .. raptorEventArgs.bossName, "\255\255\50\1No passport, no problem... for them!"},
 				{"\255\255\100\1IMMIGRATION VIOLATION!", textColor .. raptorEventArgs.bossName .. " bypassed customs!", "\255\255\50\1Build that wall!"},
 				{"\255\255\100\1RAPTOR ROYALTY INCOMING!", textColor .. raptorEventArgs.bossName .. " doesn't need a visa", "\255\255\50\1" .. raptorEventArgs.bossDescription},
+				{"\255\255\100\1INFLUENCER SPOTTED!", textColor .. raptorEventArgs.bossName .. " started a livestream!", "\255\255\50\1You're the content!"},
+				{"\255\255\100\1VERIFIED ACCOUNT!", textColor .. raptorEventArgs.bossName .. " (Blue checkmark)", "\255\255\50\1Followed by 10 million raptors!"},
+				{"\255\255\100\1CELEBRITY ALERT!", textColor .. raptorEventArgs.bossName .. " just landed!", "\255\255\50\1Paparazzi raptors incoming!"},
 			}
 			local variant = vipMessages[math.random(1, #vipMessages)]
 			messages[1] = variant[1]
@@ -296,6 +351,8 @@ local function getMarqueeMessage(raptorEventArgs)
 				{"\255\255\100\1BORDER BREACH!", textColor .. raptorEventArgs.bossName .. " has entered illegally!", "\255\255\50\1Where's border patrol?"},
 				{"\255\255\100\1UNAUTHORIZED ENTRY!", textColor .. "Illegal immigrant: " .. raptorEventArgs.bossName, "\255\255\50\1No documentation required!"},
 				{"\255\255\100\1THE BOSS HAS ARRIVED!", textColor .. raptorEventArgs.bossName, "\255\255\50\1" .. raptorEventArgs.bossDescription},
+				{"\255\255\100\1BOSS FIGHT LOADING!", textColor .. raptorEventArgs.bossName, "\255\255\50\1Dark Souls difficulty: Enabled!"},
+				{"\255\255\100\1DLC UNLOCKED!", textColor .. raptorEventArgs.bossName .. " - Extra Hard Mode", "\255\255\50\1No refunds!"},
 			}
 			local variant = eliteMessages[math.random(1, #eliteMessages)]
 			messages[1] = variant[1]
@@ -315,13 +372,37 @@ local function checkGracePeriodWarnings()
 	
 	local currentTime = GetGameSeconds()
 	
+	-- Check if grace period just ended
+	if currentTime >= gameInfo.raptorGracePeriod and not gracePeriodWarnings[0] then
+		gracePeriodWarnings[0] = true
+		
+		-- Show TIME TO COOK message
+		messageArgs = {
+			type = "gracePeriodWarning",
+			timeRemaining = "0",
+			suggestion = nil,
+			timeToCook = true
+		}
+		
+		showMarqueeMessage = true
+		refreshMarqueeMessage = true
+		waveTime = Spring.GetTimer()
+		
+		-- Play warning sound
+		Spring.PlaySoundFile(sounds.gracePeriod, 0.8, 'ui')
+		
+		-- Send notification to chat
+		Spring.Echo("\255\255\50\1RAPTORS INCOMING! \255\255\255\1Grace period has ended!")
+		return
+	end
+	
 	-- Only check during grace period
 	if currentTime < gameInfo.raptorGracePeriod then
 		local timeRemaining = gameInfo.raptorGracePeriod - currentTime
 		
 		-- Check each warning threshold
 		for threshold, alreadyWarned in pairs(gracePeriodWarnings) do
-			if not alreadyWarned and timeRemaining <= threshold and timeRemaining > (threshold - 5) then
+			if threshold > 0 and not alreadyWarned and timeRemaining <= threshold and timeRemaining > (threshold - 5) then
 				gracePeriodWarnings[threshold] = true
 				
 				-- Create the warning message
@@ -337,31 +418,28 @@ local function checkGracePeriodWarnings()
 					timeText = seconds .. " seconds"
 				end
 				
-				-- Add suggestions based on time remaining
+				-- Pick random variant based on time
 				local suggestion = nil
 				if threshold == 720 then
-					-- Pick random 12-minute variant
 					local variants = messageVariants.twelveMinutes
 					suggestion = variants[math.random(1, #variants)]
 				elseif threshold == 660 then
-					-- Pick random 11-minute variant
 					local variants = messageVariants.elevenMinutes
 					suggestion = variants[math.random(1, #variants)]
 				elseif threshold == 360 then
-					-- Pick random 6-minute variant
 					local variants = messageVariants.sixMinutes
 					suggestion = variants[math.random(1, #variants)]
 				elseif threshold == 300 then
-					-- Pick random 5-minute variant
 					local variants = messageVariants.fiveMinutes
 					suggestion = variants[math.random(1, #variants)]
 				elseif threshold == 180 then
-					-- Pick random 3-minute variant
 					local variants = messageVariants.threeMinutes
 					suggestion = variants[math.random(1, #variants)]
 				elseif threshold == 60 then
-					-- Pick random 1-minute variant
 					local variants = messageVariants.oneMinute
+					suggestion = variants[math.random(1, #variants)]
+				elseif threshold == 30 then
+					local variants = messageVariants.thirtySeconds
 					suggestion = variants[math.random(1, #variants)]
 				end
 				
@@ -382,26 +460,30 @@ local function checkGracePeriodWarnings()
 				-- Also send notification to chat with proper advice
 				local chatAdvice = ""
 				if threshold == 180 then
-					chatAdvice = "Start preparing defenses and build walls!"
+					chatAdvice = "TIER 2 WALLS UP! Tier 1 walls are raptor desserts!"
 				elseif threshold == 60 then
-					chatAdvice = "Build defenses: AA, Dragon's Maw, shields!"
+					chatAdvice = "Build AA, Dragon's Maw (Cortex), and shields NOW!"
 				elseif threshold == 300 then
 					chatAdvice = "Get ready - plan your defense strategy!"
 				elseif threshold == 360 then
 					chatAdvice = "Time to plan your defense!"
+				elseif threshold == 30 then
+					chatAdvice = "FINAL SECONDS! GET READY!"
 				end
 				
 				if chatAdvice ~= "" then
 					Spring.Echo("\255\255\200\1Warning: \255\255\255\1" .. timeText .. " remaining - \255\255\150\200\1" .. chatAdvice)
 				else
-					Spring.Echo("\255\255\200\1Warning: \255\255\255\1" .. timeText .. " remaining in grace period!")
+					Spring.Echo("\255\255\200\1Warning: \255\255\255\1" .. timeText .. " remaining!")
 				end
 			end
 		end
 	else
-		-- Reset warnings when grace period ends
+		-- Reset warnings when grace period ends (except the 0 marker)
 		for threshold, _ in pairs(gracePeriodWarnings) do
-			gracePeriodWarnings[threshold] = false
+			if threshold > 0 then
+				gracePeriodWarnings[threshold] = false
+			end
 		end
 	end
 end
@@ -449,7 +531,71 @@ local function checkMiniBossSpawns()
 end
 
 local function UpdateRules()
+	if not gameInfo then
+		gameInfo = {}
+	end
+
 	gameInfo.raptorGracePeriod = Spring.GetGameRulesParam("raptorGracePeriod") or 0
+	gameInfo.raptorQueenAnger = Spring.GetGameRulesParam("raptorQueenAnger") or 0
+end
+
+local function checkQueenAngerWarnings()
+	if not enabled or not gameInfo then
+		return
+	end
+	
+	local currentAnger = gameInfo.raptorQueenAnger
+	
+	-- Check each anger threshold
+	for threshold, alreadyWarned in pairs(queenAngerNotifications) do
+		if not alreadyWarned and currentAnger >= threshold then
+			queenAngerNotifications[threshold] = true
+			
+			local warningArgs
+			if threshold == 55 then
+				warningArgs = {
+					type = "queenAnger",
+					title = "MATRONAS INCOMING!",
+					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
+					subtitle = "Elite Matriarch raptors are spawning!"
+				}
+			elseif threshold == 70 then
+				warningArgs = {
+					type = "queenAnger",
+					title = "QUEENLING PRIMA ALERT!",
+					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
+					subtitle = "First royal raptor is coming!"
+				}
+			elseif threshold == 90 then
+				warningArgs = {
+					type = "queenAnger",
+					title = "QUEENLING SECUNDA ALERT!",
+					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
+					subtitle = "Second royal raptor is coming!"
+				}
+			elseif threshold == 100 then
+				warningArgs = {
+					type = "queenAnger",
+					title = "QUEEN IS SPAWNING!",
+					message = "Queen Anger: " .. math.floor(currentAnger) .. "%",
+					subtitle = "The final boss approaches!"
+				}
+			end
+			
+			if warningArgs then
+				messageArgs = warningArgs
+				showMarqueeMessage = true
+				refreshMarqueeMessage = true
+				waveTime = Spring.GetTimer()
+				
+				-- Play warning sound
+				Spring.PlaySoundFile(sounds.miniBoss, 0.8, 'ui')
+				
+				-- Send notification to chat
+				Spring.Echo("\255\255\200\50\1" .. warningArgs.title .. " \255\255\255\1(" .. math.floor(currentAnger) .. "% anger)")
+			end
+		end
+	end
 end
 
 local function Draw()
@@ -484,10 +630,24 @@ function widget:Initialize()
 	widget:ViewResize()
 	UpdateRules()
 	viewSizeX, viewSizeY = gl.GetViewSizes()
+	
+	-- Register to intercept RaptorEvent before other widgets
+	widgetHandler:RegisterGlobal("RaptorEvent", RaptorEvent)
+end
+
+function RaptorEvent(raptorEventArgs)
+	-- Intercept and suppress wave notifications from original widget
+	-- Only allow queen and boss events through
+	if raptorEventArgs.type == "wave" or raptorEventArgs.type == "airWave" or raptorEventArgs.type == "firstWave" then
+		-- Suppress these - don't show wave notifications
+		return true  -- Event handled, don't pass to other widgets
+	end
+	-- Let other events (queen, resistance) pass through
+	return false
 end
 
 function widget:Shutdown()
-	-- Cleanup
+	widgetHandler:DeregisterGlobal("RaptorEvent")
 end
 
 function widget:GameFrame(n)
@@ -498,6 +658,7 @@ function widget:GameFrame(n)
 		end
 		-- Check for warnings every second
 		checkGracePeriodWarnings()
+		checkQueenAngerWarnings()
 		checkMiniBossSpawns()
 	end
 end
