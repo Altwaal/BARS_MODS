@@ -1,0 +1,543 @@
+-- Scav Mini Bosses v2f
+-- Based on Mini Bosses v2f Extended structure
+-- Creates easy/normal/hard variants of all boss units
+
+-- Initialize core variables and imports
+local unitDefs = UnitDefs or {}
+local tableMerge = table.merge
+local tableCopy = table.copy
+local matriarchBasicName = 'raptor_matriarch_basic'
+local explosionType = 'customfusionexplo'
+local spring = Spring
+
+-- Health scaling factors
+local queenHealthScale = 1.3
+local matriarchHealthScale = 1.3
+if unitDefs[matriarchBasicName] then
+    matriarchHealthScale = unitDefs[matriarchBasicName].health / 60000
+end
+if unitDefs['raptor_queen_epic'] then
+    queenHealthScale = unitDefs['raptor_queen_epic'].health / 1250000
+end
+
+-- Player count scaling
+local playerCountScale = 1
+if spring.Utilities.Gametype.IsRaptors() then 
+    playerCountScale = (#spring.GetTeamList() - 2) / 12 
+end
+
+-- Spawn count multiplier from mod options
+local spawnCountMult = spring.GetModOptions().raptor_spawncountmult or 3
+playerCountScale = playerCountScale * (spawnCountMult / 3)
+
+-- Helper function to scale spawn counts
+local function scaleSpawnCount(baseCount)
+    return math.max(1, math.ceil(baseCount * playerCountScale))
+end
+
+-- Anger level thresholds for boss spawning (similar to mini bosses)
+local angerThresholds = {01, 85, 90, 105, 110, 125}
+
+-- Queen time multiplier affects anger scaling
+local queenTimeMult = math.max(1, spring.GetModOptions().raptor_queentimemult or 1.3)
+local minAnger, maxAnger = angerThresholds[1], angerThresholds[#angerThresholds]
+local scaledMaxAnger = queenTimeMult * angerThresholds[#angerThresholds] / 1.3
+local angerScale = (scaledMaxAnger - minAnger) / (maxAnger - minAnger)
+
+-- Scale all anger thresholds based on queen time multiplier
+for i = 2, #angerThresholds do 
+    angerThresholds[i] = math.floor(minAnger + (angerThresholds[i] - minAnger) * angerScale)
+end
+
+-- Helper function to create unit variants by copying and merging properties
+local function createUnitVariant(sourceUnit, targetUnit, modifications)
+    if unitDefs[sourceUnit] and not unitDefs[targetUnit] then 
+        unitDefs[targetUnit] = tableMerge(unitDefs[sourceUnit], modifications or {})
+    end 
+end
+
+-- Get base matriarch health for scaling other units (if matriarch exists)
+local matriarchBaseHealth = 60000 -- Default fallback value
+if unitDefs[matriarchBasicName] then
+    matriarchBaseHealth = unitDefs[matriarchBasicName].health
+end
+
+-- Create Easy/Normal/Hard variants of ARM Commander Boss
+if unitDefs['armcomboss'] then
+    -- ARM Boss Easy
+    createUnitVariant('armcomboss', 'raptor_armboss_easy', {
+        name = 'ARM Destroyer Easy',
+        icontype = 'scavengers/ARMCOMBOSS',
+        health = matriarchBaseHealth * 3,
+        speed = 20.0,
+        autoheal = 800,
+        idleautoheal = 800,
+        customparams = {
+            i18n_en_humanname = 'ARM Destroyer Easy',
+            i18n_en_tooltip = 'Weakened ARM commander variant for early testing.'
+        },
+        weapondefs = {
+            armcomlaserboss = {damage = {default = 200, vtol = 800, shields = 1000}, reloadtime = 0.12},
+            armcomsealaserboss = {damage = {default = 200, vtol = 800, shields = 1000}, reloadtime = 0.12},
+            disintegratorxl = {reloadtime = 8}
+        }
+    })
+    
+    -- ARM Boss Normal
+    createUnitVariant('armcomboss', 'raptor_armboss_normal', {
+        name = 'ARM Destroyer Normal',
+        icontype = 'scavengers/ARMCOMBOSS',
+        health = matriarchBaseHealth * 5,
+        speed = 25.0,
+        autoheal = 1200,
+        idleautoheal = 1200,
+        customparams = {
+            i18n_en_humanname = 'ARM Destroyer Normal',
+            i18n_en_tooltip = 'Standard ARM commander variant.'
+        },
+        weapondefs = {
+            armcomlaserboss = {damage = {default = 400, vtol = 1600, shields = 2000}, reloadtime = 0.08},
+            armcomsealaserboss = {damage = {default = 400, vtol = 1600, shields = 2000}, reloadtime = 0.08},
+            disintegratorxl = {reloadtime = 6}
+        }
+    })
+    
+    -- ARM Boss Hard
+    createUnitVariant('armcomboss', 'raptor_armboss_hard', {
+        name = 'ARM Destroyer Hard',
+        icontype = 'scavengers/ARMCOMBOSS',
+        health = matriarchBaseHealth * 8,
+        speed = 30.0,
+        autoheal = 2000,
+        idleautoheal = 2000,
+        customparams = {
+            i18n_en_humanname = 'ARM Destroyer Hard',
+            i18n_en_tooltip = 'Enhanced ARM commander variant with devastating firepower.'
+        },
+        weapondefs = {
+            armcomlaserboss = {damage = {default = 600, vtol = 2400, shields = 3000}, reloadtime = 0.06},
+            armcomsealaserboss = {damage = {default = 600, vtol = 2400, shields = 3000}, reloadtime = 0.06},
+            disintegratorxl = {reloadtime = 4}
+        }
+    })
+end
+
+-- Create Easy/Normal/Hard variants of COR Commander Boss
+if unitDefs['corcomboss'] then
+    -- COR Boss Easy
+    createUnitVariant('corcomboss', 'raptor_corboss_easy', {
+        name = 'COR Ravager Easy',
+        icontype = 'scavengers/CORCOMBOSS',
+        health = matriarchBaseHealth * 2.5,
+        speed = 20.0,
+        autoheal = 600,
+        customparams = {
+            i18n_en_humanname = 'COR Ravager Easy',
+            i18n_en_tooltip = 'Weakened COR commander variant.'
+        },
+        weapondefs = {
+            corcomlaserboss = {damage = {default = 150, shields = 800}, reloadtime = 0.12},
+            corcomsealaserboss = {damage = {default = 150, shields = 800}, reloadtime = 0.12},
+            disintegratorxl = {reloadtime = 12, range = 600}
+        }
+    })
+    
+    -- COR Boss Normal
+    createUnitVariant('corcomboss', 'raptor_corboss_normal', {
+        name = 'COR Ravager Normal',
+        icontype = 'scavengers/CORCOMBOSS',
+        health = matriarchBaseHealth * 4,
+        speed = 25.0,
+        autoheal = 1000,
+        customparams = {
+            i18n_en_humanname = 'COR Ravager Normal',
+            i18n_en_tooltip = 'Standard COR commander variant.'
+        },
+        weapondefs = {
+            corcomlaserboss = {damage = {default = 300, shields = 1500}, reloadtime = 0.08},
+            corcomsealaserboss = {damage = {default = 300, shields = 1500}, reloadtime = 0.08},
+            disintegratorxl = {reloadtime = 8, range = 750}
+        }
+    })
+    
+    -- COR Boss Hard
+    createUnitVariant('corcomboss', 'raptor_corboss_hard', {
+        name = 'COR Ravager Hard',
+        icontype = 'scavengers/CORCOMBOSS',
+        health = matriarchBaseHealth * 7,
+        speed = 30.0,
+        autoheal = 1600,
+        customparams = {
+            i18n_en_humanname = 'COR Ravager Hard',
+            i18n_en_tooltip = 'Enhanced COR commander with rapid-fire weapons.'
+        },
+        weapondefs = {
+            corcomlaserboss = {damage = {default = 450, shields = 2200}, reloadtime = 0.06},
+            corcomsealaserboss = {damage = {default = 450, shields = 2200}, reloadtime = 0.06},
+            disintegratorxl = {reloadtime = 6, range = 900}
+        }
+    })
+end
+
+-- Create raptor variants from ARM Scavenger Boss V2 difficulties
+if unitDefs['armscavengerbossv2_veryeasy'] then
+    createUnitVariant('armscavengerbossv2_veryeasy', 'raptor_armscavv2_veryeasy', {
+        name = 'Raptor ARM Scav Guardian VeryEasy',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian VeryEasy',
+            i18n_en_tooltip = 'Weakest scavenger guardian variant.'
+        }
+    })
+end
+
+if unitDefs['armscavengerbossv2_easy'] then
+    createUnitVariant('armscavengerbossv2_easy', 'raptor_armscavv2_easy', {
+        name = 'Raptor ARM Scav Guardian Easy',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian Easy',
+            i18n_en_tooltip = 'Easy scavenger guardian variant.'
+        }
+    })
+end
+
+if unitDefs['armscavengerbossv2_normal'] then
+    createUnitVariant('armscavengerbossv2_normal', 'raptor_armscavv2_normal', {
+        name = 'Raptor ARM Scav Guardian Normal',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian Normal',
+            i18n_en_tooltip = 'Standard scavenger guardian variant.'
+        }
+    })
+end
+
+if unitDefs['armscavengerbossv2_hard'] then
+    createUnitVariant('armscavengerbossv2_hard', 'raptor_armscavv2_hard', {
+        name = 'Raptor ARM Scav Guardian Hard',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian Hard',
+            i18n_en_tooltip = 'Hard scavenger guardian variant.'
+        }
+    })
+end
+
+if unitDefs['armscavengerbossv2_veryhard'] then
+    createUnitVariant('armscavengerbossv2_veryhard', 'raptor_armscavv2_veryhard', {
+        name = 'Raptor ARM Scav Guardian VeryHard',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian VeryHard',
+            i18n_en_tooltip = 'Very hard scavenger guardian variant.'
+        }
+    })
+end
+
+if unitDefs['armscavengerbossv2_epic'] then
+    createUnitVariant('armscavengerbossv2_epic', 'raptor_armscavv2_epic', {
+        name = 'Raptor ARM Scav Guardian Epic',
+        customparams = {
+            i18n_en_humanname = 'Raptor ARM Scav Guardian Epic',
+            i18n_en_tooltip = 'Epic scavenger guardian variant.'
+        }
+    })
+end
+
+-- Create raptor variants from Scavenger Boss V4 difficulties
+if unitDefs['scavengerbossv4_veryeasy'] then
+    createUnitVariant('scavengerbossv4_veryeasy', 'raptor_scavv4_veryeasy', {
+        name = 'Raptor Scav Juggernaut VeryEasy',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut VeryEasy',
+            i18n_en_tooltip = 'Weakest scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+if unitDefs['scavengerbossv4_easy'] then
+    createUnitVariant('scavengerbossv4_easy', 'raptor_scavv4_easy', {
+        name = 'Raptor Scav Juggernaut Easy',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut Easy',
+            i18n_en_tooltip = 'Easy scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+if unitDefs['scavengerbossv4_normal'] then
+    createUnitVariant('scavengerbossv4_normal', 'raptor_scavv4_normal', {
+        name = 'Raptor Scav Juggernaut Normal',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut Normal',
+            i18n_en_tooltip = 'Standard scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+if unitDefs['scavengerbossv4_hard'] then
+    createUnitVariant('scavengerbossv4_hard', 'raptor_scavv4_hard', {
+        name = 'Raptor Scav Juggernaut Hard',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut Hard',
+            i18n_en_tooltip = 'Hard scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+if unitDefs['scavengerbossv4_veryhard'] then
+    createUnitVariant('scavengerbossv4_veryhard', 'raptor_scavv4_veryhard', {
+        name = 'Raptor Scav Juggernaut VeryHard',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut VeryHard',
+            i18n_en_tooltip = 'Very hard scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+if unitDefs['scavengerbossv4_epic'] then
+    createUnitVariant('scavengerbossv4_epic', 'raptor_scavv4_epic', {
+        name = 'Raptor Scav Juggernaut Epic',
+        customparams = {
+            i18n_en_humanname = 'Raptor Scav Juggernaut Epic',
+            i18n_en_tooltip = 'Epic scavenger war machine variant.',
+            raptor_disable_weapons_until_anger = 106
+        }
+    })
+end
+
+-- Create raptor variants from ARM Gate T3 (advanced shield generator)
+if unitDefs['armgatet3'] then
+    -- ARM Gate T3 Easy
+    createUnitVariant('armgatet3', 'raptor_armgatet3_easy', {
+        name = 'Raptor Shield Fortress Easy',
+        health = matriarchBaseHealth * 3,
+        customparams = {
+            i18n_en_humanname = 'Raptor Shield Fortress Easy',
+            i18n_en_tooltip = 'Advanced raptor shield fortress with original stats.'
+        }
+    })
+    
+    -- ARM Gate T3 Normal
+    createUnitVariant('armgatet3', 'raptor_armgatet3_normal', {
+        name = 'Raptor Shield Fortress Normal',
+        health = matriarchBaseHealth * 5,
+        customparams = {
+            i18n_en_humanname = 'Raptor Shield Fortress Normal',
+            i18n_en_tooltip = 'Enhanced raptor shield fortress with original stats.'
+        }
+    })
+    
+    -- ARM Gate T3 Hard
+    createUnitVariant('armgatet3', 'raptor_armgatet3_hard', {
+        name = 'Raptor Shield Fortress Hard',
+        health = matriarchBaseHealth * 8,
+        customparams = {
+            i18n_en_humanname = 'Raptor Shield Fortress Hard',
+            i18n_en_tooltip = 'Ultimate raptor shield fortress with original stats.'
+        }
+    })
+end
+
+-- Helper function to create squad parameters for raptor units
+local function createSquadParams(minAnger, maxAnger, behavior, rarity, unitAmount, weight)
+    return {
+        raptorcustomsquad = true,
+        raptorsquadunitsamount = unitAmount or 1,
+        raptorsquadminanger = minAnger,
+        raptorsquadmaxanger = maxAnger,
+        raptorsquadweight = weight or 5,
+        raptorsquadrarity = rarity or 'basic',
+        raptorsquadbehavior = behavior,
+        raptorsquadbehaviordistance = 500,
+        raptorsquadbehaviorchance = 0.75
+    }
+end
+
+-- Base unit properties for explosion and anti-air capabilities
+local baseUnitProps = {
+    selfdestructas = explosionType,
+    explodeas = explosionType,
+    weapondefs = {
+        yellow_missile = {damage = {default = 1, vtol = 1000}}
+    }
+}
+
+-- Configure spawn parameters and behaviors for all boss units
+local unitConfigurations = {
+    -- ARM Boss variants - increased spawn limits
+    raptor_armboss_easy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[2], 'berserk')
+    }),
+    
+    raptor_armboss_normal = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[2], angerThresholds[3], 'berserk')
+    }),
+    
+    raptor_armboss_hard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[3], angerThresholds[4], 'berserk')
+    }),
+    
+    -- COR Boss variants - increased spawn limits
+    raptor_corboss_easy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[2], 'berserk')
+    }),
+    
+    raptor_corboss_normal = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[2], angerThresholds[3], 'berserk')
+    }),
+    
+    raptor_corboss_hard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(angerThresholds[3], angerThresholds[4], 'berserk')
+    }),
+    
+    -- ARM Scav V2 variants - all difficulties
+    raptor_armscavv2_veryeasy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[2], 'berserk')
+    }),
+    
+    raptor_armscavv2_easy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[3], 'berserk')
+    }),
+    
+    raptor_armscavv2_normal = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[2], angerThresholds[4], 'berserk')
+    }),
+    
+    raptor_armscavv2_hard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[3], angerThresholds[5], 'berserk')
+    }),
+    
+    raptor_armscavv2_veryhard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[4], angerThresholds[6], 'berserk')
+    }),
+    
+    raptor_armscavv2_epic = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[5], angerThresholds[6], 'berserk')
+    }),
+    
+    -- Scav V4 variants - all difficulties
+    raptor_scavv4_veryeasy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[2], 'berserk')
+    }),
+    
+    raptor_scavv4_easy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[1], angerThresholds[3], 'berserk')
+    }),
+    
+    raptor_scavv4_normal = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[2], angerThresholds[4], 'berserk')
+    }),
+    
+    raptor_scavv4_hard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[3], angerThresholds[5], 'berserk')
+    }),
+    
+    raptor_scavv4_veryhard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[4], angerThresholds[6], 'berserk')
+    }),
+    
+    raptor_scavv4_epic = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(angerThresholds[5], angerThresholds[6], 'berserk')
+    }),
+    
+    -- ARM Gate T3 variants (advanced shield generators) - spawn early for support
+    raptor_armgatet3_easy = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(1, angerThresholds[2], 'guard')
+    }),
+    
+    raptor_armgatet3_normal = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(2),
+        customparams = createSquadParams(1, angerThresholds[3], 'guard')
+    }),
+    
+    raptor_armgatet3_hard = tableMerge(baseUnitProps, {
+        maxthisunit = scaleSpawnCount(1),
+        customparams = createSquadParams(1, angerThresholds[4], 'guard')
+    })
+}
+
+-- Apply all unit configurations
+for unitName, config in pairs(unitConfigurations) do
+    unitDefs[unitName] = unitDefs[unitName] or {}
+    table.mergeInPlace(unitDefs[unitName], config, true)
+end
+
+-- Metal costs for all boss variants (scaled based on difficulty)
+local metalCosts = {
+    -- ARM Boss variants
+    raptor_armboss_easy = 25000,
+    raptor_armboss_normal = 40000,
+    raptor_armboss_hard = 60000,
+    
+    -- COR Boss variants  
+    raptor_corboss_easy = 20000,
+    raptor_corboss_normal = 35000,
+    raptor_corboss_hard = 55000,
+    
+    -- ARM Scav V2 variants - all difficulties
+    raptor_armscavv2_veryeasy = 15000,
+    raptor_armscavv2_easy = 25000,
+    raptor_armscavv2_normal = 40000,
+    raptor_armscavv2_hard = 60000,
+    raptor_armscavv2_veryhard = 85000,
+    raptor_armscavv2_epic = 120000,
+    
+    -- Scav V4 variants - all difficulties
+    raptor_scavv4_veryeasy = 20000,
+    raptor_scavv4_easy = 35000,
+    raptor_scavv4_normal = 55000,
+    raptor_scavv4_hard = 80000,
+    raptor_scavv4_veryhard = 110000,
+    raptor_scavv4_epic = 150000,
+    
+    -- ARM Gate T3 variants (advanced shield generators)
+    raptor_armgatet3_easy = 25000,
+    raptor_armgatet3_normal = 40000,
+    raptor_armgatet3_hard = 65000
+}
+
+-- Store original UnitDef_Post function if it exists
+local originalUnitDefPost = UnitDef_Post
+
+-- Override UnitDef_Post to apply metal cost scaling
+function UnitDef_Post(unitDefName, unitDefTable)
+    -- Call original function if it exists
+    if originalUnitDefPost then 
+        originalUnitDefPost(unitDefName, unitDefTable) 
+    end
+    
+    -- Apply health-based cost scaling (minimal for testing)
+    local costScale = 1
+    if matriarchHealthScale > 1.3 then 
+        costScale = matriarchHealthScale / 1.3 
+    end
+    
+    -- Apply scaled metal costs to boss units
+    for unitName, baseCost in pairs(metalCosts) do
+        if unitDefs[unitName] then
+            local scaledCost = math.floor(baseCost * costScale)
+            unitDefs[unitName].metalcost = scaledCost
+        end
+    end
+end
